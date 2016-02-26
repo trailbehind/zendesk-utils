@@ -226,36 +226,39 @@ class ZendeskPDFMaker:
     bucket_name = S3_BUCKET_FOR_MANUAL
     bucket = conn.get_bucket(bucket_name, validate=False)
     source_dir = 'gen/pdf/'
-    manual_urls = '<h1>{}</h1>'.format("Manual PDFs")
-    printed_categories = set()
-    open_table = False
+    section_dict = {}
     for fn in os.listdir(source_dir):
       with open(source_dir + fn, 'r') as pdf_file:
         chunks = fn.split('-')
         category = chunks[0]
-        print category
-        if not category in printed_categories:
-          if open_table:
-            manual_urls += '</table>'
-          manual_urls += '<h2>{}</h2>'.format(category)
-          manual_urls += '<table>'
-          open_table = True
-          printed_categories.add(category)
         filename = '-'.join(chunks[1:len(chunks)])
+        if not category in section_dict:
+          section_dict[category] = ''
+        section_dict[category] += '<tr><td style="padding-right:10px;padding-bottom:5px"><a href=http://{}/manual/{}/{}>{}</a></td><td>http://{}/manual/{}/{}</td></tr>'.format(bucket_name, category, filename, filename, bucket_name, category, filename)
         k = Key(bucket)
         k.key = '/manual/' + category + '/' + filename
         print "POSTING PDF to S3: " + k.key
-        k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
-        manual_urls += '<tr><td style="padding-right:10px;padding-bottom:5px"><a href=http://{}/manual/{}/{}>{}</a></td><td>http://{}/manual/{}/{}</td></tr>'.format(bucket_name, category, filename, filename, bucket_name, category, filename)
-    manual_urls += '</table>'
+        #k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
+    self.post_inventory_html(section_dict, bucket, bucket_name)
+
+  def post_inventory_html(self, section_dict, bucket, bucket_name):
+    manual_urls = '<h1>{}</h1>'.format("Manual PDFs")
+    for category in section_dict:
+      manual_urls += '<h2>{}</h2>'.format(category)
+      manual_urls += '<table>'
+      manual_urls += section_dict[category] 
+      manual_urls += '</table>'
     date = time.strftime('%l:%M%p %Z on %b %d, %Y')
     manual_urls += '<h3 style="color:gray"><em>Last Updated: {}</em></h3>'.format(date)
+
     with open('gen/url_list.html', 'w') as url_file:
       url_file.write(manual_urls)
     with open('gen/url_list.html', 'r') as url_file:
       k = Key(bucket)
       k.key = '/manual/url_list.html'
       k.set_contents_from_file(url_file, cb=self.percent_cb, num_cb=1)
+
+    print "POSTED inventory html to S3 at: " + bucket_name + k.key
 
 zdpm = ZendeskPDFMaker()
 if sys.argv[1] == 'create':
