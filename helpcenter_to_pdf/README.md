@@ -5,7 +5,7 @@ Because the pip install didn't work for me, install a static binary from http://
 Install other Python requirements
 
     pip install -r requirements.txt
-    export PYTHONPATH=$PYTHONPATH:/PATH_TO_REPO/zendesk_utils/localize:/PATH_TO_REPO/zendesk_utils/to_json
+    export PYTHONPATH=$PYTHONPATH:../localize:../to_json
 
 # Config
 
@@ -13,7 +13,7 @@ If you didn't already do this using this localize script, you need to clone and 
 
     cp ../localize/_sample_project_settings.py ../localize/project_settings.py
 
-# Install Fonts (if on Ubuntu Linux, Mac has by default)
+# Install Chinese Fonts (if on Ubuntu Linux, Mac has these by default)
 
 Thanks for help from [this blog post](http://cnedelcu.blogspot.com/2015/04/wkhtmltopdf-chinese-character-support.html).
 
@@ -24,7 +24,7 @@ Then, run this command to update the font cache:
 
     fc-cache -f -v
 
-
-# Generate PDFs
+# Generate and Post PDFs
 
     python ZendeskPDFMaker.py create  
+    python ZendeskPDFMaker.py post 
