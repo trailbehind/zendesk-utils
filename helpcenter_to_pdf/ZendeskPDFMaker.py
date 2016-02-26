@@ -229,7 +229,9 @@ class ZendeskPDFMaker:
     manual_urls += '<table>'
     for fn in os.listdir(source_dir):
       with open(source_dir + fn, 'r') as pdf_file:
-        print "POSTING PDF to S3: " + '/manual/' + fn
+        chunks = fn.split('-')
+        category = chunks[1]
+        print "POSTING PDF to S3: " + '/manual/' + category + '/' fn
         k = Key(bucket)
         k.key = '/manual/' + fn
         k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)

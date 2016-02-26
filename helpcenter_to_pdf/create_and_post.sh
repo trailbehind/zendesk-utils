@@ -1,6 +1,6 @@
 export PYTHONPATH=../to_json:../localize
-#python ZendeskPDFMaker.py create
-#python ZendeskPDFMaker.py post
+python ZendeskPDFMaker.py create
+python ZendeskPDFMaker.py post
 
 slack_url=$1
 if [[ -n "$slack_url" ]]; then
