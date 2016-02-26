@@ -245,7 +245,7 @@ class ZendeskPDFMaker:
         k = Key(bucket)
         k.key = '/manual/' + category + '/' + filename
         print "POSTING PDF to S3: " + k.key
-        #k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
+        k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
         manual_urls += '<tr><td style="padding-right:10px;padding-bottom:5px"><a href=http://{}/manual/{}/{}>{}</a></td><td>http://{}/manual/{}/{}</td></tr>'.format(bucket_name, category, filename, filename, bucket_name, category, filename)
     manual_urls += '</table>'
     date = time.strftime('%l:%M%p %Z on %b %d, %Y')
@@ -259,8 +259,7 @@ class ZendeskPDFMaker:
 
 zdpm = ZendeskPDFMaker()
 if sys.argv[1] == 'create':
-  pass
-  #zdpm.create_pdfs()
+  zdpm.create_pdfs()
 elif sys.argv[1] == 'post':
   zdpm.post_pdfs_to_s3()
 else:
