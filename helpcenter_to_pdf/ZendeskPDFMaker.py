@@ -210,7 +210,8 @@ class ZendeskPDFMaker:
      'margin-right': '0.75in',
      'margin-bottom': '0.75in',
      'margin-left': '0.75in',
-     'footer-right': '[page]'
+     'footer-right': '[page]',
+     'encoding': 'UTF-8'
     }
 
   def percent_cb(self, complete, total):

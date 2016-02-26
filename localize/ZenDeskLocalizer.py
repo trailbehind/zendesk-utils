@@ -202,7 +202,10 @@ class ZenDeskLocalizer:
       self.word_count += word_delta
       article_count += 1
 
-      with open(os.path.join("handoff", filename), mode='w', encoding='utf-8') as f:
+      import io
+      import shutil
+      
+      with io.open(os.path.join("handoff", filename), mode='w', encoding='utf-8') as f:
         f.write(gengo_html)
       print('{}\t\t{}/{} words\t\t{}\t\t"{}"'.format(article_count, word_delta, self.word_count, filename, data['translation']['title']))
 
