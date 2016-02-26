@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, logging, sys, json, urlparse, datetime, codecs
+import os, logging, sys, json, urlparse, datetime, codecs, time
 from ZendeskJsonPackager import ZendeskJsonPackager 
 from bs4 import BeautifulSoup
 from project_settings import *
@@ -100,7 +100,7 @@ class ZendeskPDFMaker:
       local_toc_dict = json.load(local_toc_titles)
 
     pdfkit.from_string(pdf_story, 
-                       "gen/pdf/manual-{}-{}.pdf".format(category_name, locale), 
+                       "gen/pdf/{}-{}.pdf".format(category_name, locale), 
                        toc=self.table_of_contents_dict(local_toc_dict[locale]), 
                        cover=self.path_for_created_cover(local_title_dict[locale]), 
                        options=self.wkhtmltopdf_options()
@@ -210,7 +210,8 @@ class ZendeskPDFMaker:
      'margin-right': '0.75in',
      'margin-bottom': '0.75in',
      'margin-left': '0.75in',
-     'footer-right': '[page]'
+     'footer-right': '[page]',
+     'encoding': 'UTF-8'
     }
 
   def percent_cb(self, complete, total):
@@ -226,17 +227,29 @@ class ZendeskPDFMaker:
     bucket = conn.get_bucket(bucket_name, validate=False)
     source_dir = 'gen/pdf/'
     manual_urls = '<h1>{}</h1>'.format("Manual PDFs")
-    manual_urls += '<table>'
+    printed_categories = set()
+    open_table = False
     for fn in os.listdir(source_dir):
       with open(source_dir + fn, 'r') as pdf_file:
         chunks = fn.split('-')
-        category = chunks[1]
-        print "POSTING PDF to S3: " + '/manual/' + category + '/' fn
+        category = chunks[0]
+        print category
+        if not category in printed_categories:
+          if open_table:
+            manual_urls += '</table>'
+          manual_urls += '<h2>{}</h2>'.format(category)
+          manual_urls += '<table>'
+          open_table = True
+          printed_categories.add(category)
+        filename = '-'.join(chunks[1:len(chunks)])
         k = Key(bucket)
-        k.key = '/manual/' + fn
-        k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
-        manual_urls += '<tr><td style="padding-right:10px;padding-bottom:5px"><a href=http://{}/manual/{}>{}</a></td><td>http://{}/manual/{}</td></tr>'.format(bucket_name, fn, fn, bucket_name, fn)
+        k.key = '/manual/' + category + '/' + filename
+        print "POSTING PDF to S3: " + k.key
+        #k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
+        manual_urls += '<tr><td style="padding-right:10px;padding-bottom:5px"><a href=http://{}/manual/{}/{}>{}</a></td><td>http://{}/manual/{}/{}</td></tr>'.format(bucket_name, category, filename, filename, bucket_name, category, filename)
     manual_urls += '</table>'
+    date = time.strftime('%l:%M%p %Z on %b %d, %Y')
+    manual_urls += '<h3 style="color:gray"><em>Last Updated: {}</em></h3>'.format(date)
     with open('gen/url_list.html', 'w') as url_file:
       url_file.write(manual_urls)
     with open('gen/url_list.html', 'r') as url_file:
@@ -246,7 +259,8 @@ class ZendeskPDFMaker:
 
 zdpm = ZendeskPDFMaker()
 if sys.argv[1] == 'create':
-  zdpm.create_pdfs()
+  pass
+  #zdpm.create_pdfs()
 elif sys.argv[1] == 'post':
   zdpm.post_pdfs_to_s3()
 else:
