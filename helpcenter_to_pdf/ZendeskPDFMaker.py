@@ -237,7 +237,7 @@ class ZendeskPDFMaker:
         k = Key(bucket)
         k.key = '/manual/' + category + '/' + filename
         print "POSTING PDF to S3: " + k.key
-        #k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
+        k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
     self.post_inventory_html(section_dict, bucket, bucket_name)
 
   def post_inventory_html(self, section_dict, bucket, bucket_name):
