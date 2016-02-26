@@ -13,7 +13,7 @@ Update project_settings.py with your:
 ## Install Requirements
 
     pip install -r requirements.txt    
-    export PYTHONPATH=$PYTHONPATH:/PATH_TO_REPO/zendesk_utils/localize:/PATH_TO_REPO/zendesk_utils/to_json
+    export PYTHONPATH=$PYTHONPATH:../localize:../to_json
 
 ## Usage
 
@@ -39,4 +39,3 @@ Post the translations to  ZenDesk:
   * schedule multiple jobs at once
   * localize the screenshots too
   * config/constants for handoff and gen directories
-  * moved hardcoded proper nouns not to count/translate to config
