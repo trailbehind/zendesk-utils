@@ -15,6 +15,17 @@ if GENGO_DEBUG:
   GENGO_PRIVATE_KEY = ''
   GENGO_API_URL = 'http://sandbox.gengo.com/v2/translate/'
 
+# point these at your images to customize the PDF cover pages
+
+# 8.5 x 11 image
+BACKGROUND_IMAGE_PATH = '../data/images/background.png'
+
+# n X 11 image
+BANNER_IMAGE_PATH = '../data/images/logo-banner.jpg'
+
+# small square image (~72px)
+ICON_IMAGE_PATH = '../data/images/app-icon.png'
+
 DATA_CONFIG = {
   proper_nouns: [],
 	included_categories: [],
