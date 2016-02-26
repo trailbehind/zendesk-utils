@@ -175,11 +175,18 @@ class ZendeskPDFMaker:
         generate an html file for a cover for the PDF, and return the path
     '''
     cover_html_path = 'gen/cover.html'
-    with open('cover_template.html', 'r') as cover_background_html:
-      cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> ' + localized_title.encode('UTF-8') + '</h1>' 
-      date = "{:%b %d, %Y}".format(datetime.date.today())
-      cover_html += '\n' + '<h1 style="z-index:1;color:lightgray;position:absolute;bottom:18px;right:112px">' + date + '</h1>' 
-      cover_html += '\n' + cover_background_html.read()
+    cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> ' + localized_title.encode('UTF-8') + '</h1>' 
+    date = "{:%b %d, %Y}".format(datetime.date.today())
+
+    bg_image_path = BACKGROUND_IMAGE_PATH
+    banner_image_path = BANNER_IMAGE_PATH
+    icon_image_path = ICON_IMAGE_PATH
+
+    cover_html += '\n' + '<h1 style="z-index:1;color:lightgray;position:absolute;bottom:18px;right:112px">' + date + '</h1>' 
+    cover_html += '\n' + '<img style="position:absolute; height:100%" src="{}" />'.format(bg_image_path)
+    cover_html += '\n' + '<img style="position:absolute" src="{}" />'.format(banner_image_path)
+    cover_html += '\n' + '<img style="position:absolute; bottom:20px; right:20px; width:72px" src="{}" />'.format(icon_image_path)
+
     with open(cover_html_path, 'w') as outfile:
       outfile.write(cover_html)
     return cover_html_path
