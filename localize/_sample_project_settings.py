@@ -28,13 +28,13 @@ S3_SECRET_KEY_FOR_MANUAL = ''
    point these at your images to customize the PDF cover pages
 '''
 # 8.5 x 11 image
-BACKGROUND_IMAGE_PATH = '../data/images/background.png'
+BACKGROUND_IMAGE_PATH = './data/images/background.png'
 
 # n X 11 image
-BANNER_IMAGE_PATH = '../data/images/logo-banner.jpg'
+BANNER_IMAGE_PATH = './data/images/logo-banner.jpg'
 
 # small square image (~72px)
-ICON_IMAGE_PATH = '../data/images/app-icon.png'
+ICON_IMAGE_PATH = './data/images/app-icon.png'
 
 '''
     the object the code refers to a lot
