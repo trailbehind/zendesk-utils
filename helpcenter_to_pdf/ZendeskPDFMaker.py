@@ -13,6 +13,8 @@ import sys
 from boto.s3.key import Key
 from boto.s3.connection import OrdinaryCallingFormat
 
+import requests
+
 class ZendeskPDFMaker:
   '''
       package zendesk help center articles into a PDF
@@ -266,10 +268,22 @@ class ZendeskPDFMaker:
 
     print "POSTED inventory html to S3 at: " + bucket_name + k.key
 
+  def ping_slack(self, slack_url):
+    payload = "Manual generation finished."
+    r = requests.post(slack_url, data=payload)
+
 zdpm = ZendeskPDFMaker()
 if sys.argv[1] == 'create':
   zdpm.create_pdfs()
 elif sys.argv[1] == 'post':
   zdpm.post_pdfs_to_s3()
+elif sys.argv[1] == 'ping_slack' or sys.argv[1] == 'run':
+  if len(sys.argv) != 3:
+    print '{} requires a slack url as the 2nd parameter'.format(sys.argv[1])
+  else:
+    if sys.argv[1] == 'run':
+      zdpm.create_pdfs()
+      zdpm.post_pdfs_to_s3()
+    zdpm.ping_slack(sys.argv[2])
 else:
-  print("parameters are: create, post")
+  print("parameters are: create, post, ping_slack, run")
