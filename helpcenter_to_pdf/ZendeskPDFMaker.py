@@ -269,7 +269,7 @@ class ZendeskPDFMaker:
     print "POSTED inventory html to S3 at: " + bucket_name + k.key
 
   def ping_slack(self, slack_url):
-    payload = "Manual generation finished."
+    payload = "Manual generation finished, see: http://{}/manual/url_list.html".format(S3_BUCKET_FOR_MANUAL)
     r = requests.post(slack_url, data=payload)
 
 zdpm = ZendeskPDFMaker()
