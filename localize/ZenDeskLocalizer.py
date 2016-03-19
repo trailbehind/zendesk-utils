@@ -1,6 +1,7 @@
 import hmac, time, sys, os, re, csv, math, json, requests
 from bs4 import BeautifulSoup
 from hashlib import sha1
+import shutil
 from project_settings import *
 from ZendeskJsonPackager import ZendeskJsonPackager 
 
@@ -16,9 +17,9 @@ class ZenDeskLocalizer:
   '''  
 
   def __init__(self):
-    self.zendesk_url = 'https://%s.zendesk.com/api/v2/help_center' % subdomain
+    self.zendesk_url = 'https://%s.zendesk.com/api/v2/help_center' % ZENDESK_SUBDOMAIN
     self.zendesk_session = requests.Session()
-    self.zendesk_session.auth = (email+'/token', token)
+    self.zendesk_session.auth = (ZENDESK_EMAIL+'/token', ZENDESK_TOKEN)
     self.zendesk_session.headers = {'Content-Type': 'application/json'}
     
     self.gengo_headers = {"Accept": "application/json"}
@@ -27,18 +28,30 @@ class ZenDeskLocalizer:
     self.word_count = 0 # count words to translate, to estimate cost
 
 
-  def package_zendesk_for_gengo_localization(self):
+  def package_zendesk_for_gengo_localization(self, article_id):
     '''
         generate files based on Help Center articles and metadata,
         to post to gengo for translation
     '''
-    self.json_packager = ZendeskJsonPackager()
+
+    if article_id:
+      try:
+        shutil.rmtree('gen');
+      except:
+        pass
+      try:
+        shutil.rmtree('handoff');
+      except:
+        pass
+
+    self.json_packager = ZendeskJsonPackager(article_id)
     self.json_packager.make_directory("handoff")
-    self.json_packager.package_zendesk_for_gengo_localization()
+    self.json_packager.package_zendesk_for_gengo_localization(article_id=article_id)
     
     self.json_packager.make_directory(TRANSLATION_RESPONSE_DIR)
-    self.package_category_titles_csv()
-    self.package_section_titles_csv()
+    if not article_id:
+      self.package_category_titles_csv()
+      self.package_section_titles_csv()
     self.package_articles()
 
   def package_category_titles_csv(self):
@@ -48,7 +61,7 @@ class ZenDeskLocalizer:
     categories = self.json_packager.fetch_all_categories()
     csv_file = open('handoff/category_names.csv','w')
     wr = csv.writer(csv_file, dialect='excel')
-    url = "http://" + subdomain + ".zendesk.com/hc/en-us"
+    url = "http://" + ZENDESK_SUBDOMAIN + ".zendesk.com/hc/en-us"
     translator_instructions = "[[[" + "NOTE FOR TRANSLATOR: These are category titles shown here: " + url + " ]]]"
     wr.writerow([translator_instructions])
     wr.writerow([])
@@ -85,7 +98,7 @@ class ZenDeskLocalizer:
     with open('data/section_name_explanations.json', 'r') as section_file:
       section_explanations = json.load(section_file)
 
-    url = "http://" + subdomain + ".zendesk.com/hc/en-us/categories/" + str(sections[0]['category_id'])
+    url = "http://" + ZENDESK_SUBDOMAIN + ".zendesk.com/hc/en-us/categories/" + str(sections[0]['category_id'])
     translator_instructions = "[[[" + "NOTE FOR TRANSLATOR: These are section titles like what is shown here: " + url + " ]]]"
 
     csv_file = open('handoff/section_names.csv','w')
@@ -109,7 +122,7 @@ class ZenDeskLocalizer:
     self.json_packager = ZendeskJsonPackager()
     articles = self.json_packager.fetch_all_articles()
     for article in articles:
-      url = 'https://{}.zendesk.com/api/v2/help_center/articles/{}/translations.json'.format(subdomain, article['id'])
+      url = 'https://{}.zendesk.com/api/v2/help_center/articles/{}/translations.json'.format(ZENDESK_SUBDOMAIN, article['id'])
       response = self.zendesk_session.get(url)
       for local_article in response.json()['translations']:
         clean_body = self.delocalize_hrefs(local_article['body'])
@@ -124,7 +137,7 @@ class ZenDeskLocalizer:
           if response.status_code != 200:
             print('Status:', response.status_code, 'Problem with the post request. Exiting.')
             exit()
-          print "updated {} {}".format(article['id'], local_article['locale'])          
+          print("updated {} {}".format(article['id'], local_article['locale']))          
 
 
   def delocalize_hrefs(self, html):
@@ -140,11 +153,11 @@ class ZenDeskLocalizer:
       href = tag['href']
       if not 'hc/en-us/articles/' in href:
         continue
-      base_url = 'https://%s.zendesk.com/' % subdomain
+      base_url = 'https://%s.zendesk.com/' % ZENDESK_SUBDOMAIN
       href = href.replace(base_url, '/')
       href = href.replace('hc/en-us/articles/', 'hc/articles/')
       href = re.sub("(.*?)([0-9]{9}).*", self.trim_url, href)
-      print "DELOCALIZED URL TO: " + href
+      print("DELOCALIZED URL TO: " + href)
       tag['href'] = href
     return soup.prettify()
 
@@ -166,7 +179,7 @@ class ZenDeskLocalizer:
     article_count = 0
     origin_locale = 'en-us'
     for article_id in article_dict:
-      url = 'https://{}.zendesk.com/api/v2/help_center/articles/{}/translations/{}.json'.format(subdomain, article_id, origin_locale)
+      url = 'https://{}.zendesk.com/api/v2/help_center/articles/{}/translations/{}.json'.format(ZENDESK_SUBDOMAIN, article_id, origin_locale)
       article = article_dict[article_id]
       response = self.zendesk_session.get(url)
       data = response.json()
@@ -186,12 +199,12 @@ class ZenDeskLocalizer:
 
       gengo_html = re.sub("<[^>]*>", self.escape_re_for_gengo, tree.prettify())
       gengo_html = re.sub("\d+\.", self.escape_re_for_gengo, gengo_html)
-      for noun in DATA_CONFIG['proper_nouns']:
+      for noun in DATA_CONFIG['unlocalized_words']:
         gengo_html = re.sub(noun, self.escape_for_gengo(noun), gengo_html)
       
       word_delta = 0
       dont_count_substrings = ["]]]","[[[", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-      for noun in DATA_CONFIG['proper_nouns']:
+      for noun in DATA_CONFIG['unlocalized_words']:
         dont_count_substrings.append(noun)
 
       dont_count_matches = ["[", "*", "\n"]
@@ -202,10 +215,7 @@ class ZenDeskLocalizer:
       self.word_count += word_delta
       article_count += 1
 
-      import io
-      import shutil
-      
-      with io.open(os.path.join("handoff", filename), mode='w', encoding='utf-8') as f:
+      with open(os.path.join("handoff", filename), mode='w', encoding='utf-8') as f:
         f.write(gengo_html)
       print('{}\t\t{}/{} words\t\t{}\t\t"{}"'.format(article_count, word_delta, self.word_count, filename, data['translation']['title']))
 
@@ -283,17 +293,18 @@ class ZenDeskLocalizer:
       self.set_api_sig(data)
       get_order = requests.get(job_url, params=data, headers=self.gengo_headers)
       gengo_json = self.handle_response(get_order)['response']['job']
+      language_code = GENGO_TO_ZENDESK_LOCALES[gengo_json['lc_tgt']]
       try:
-        os.mkdir( "{}{}".format(TRANSLATION_RESPONSE_DIR,gengo_json['lc_tgt']));
+        os.mkdir( "{}{}".format(TRANSLATION_RESPONSE_DIR,language_code));
       except:
         print("gen already exists")
 
       if '[[[category name]]]' in gengo_json['body_src']:
-        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/categories.csv'.format(gengo_json['lc_tgt'])), mode='w', encoding='utf-8') as f:
+        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/categories.csv'.format(language_code)), mode='w', encoding='utf-8') as f:
           csv_source = gengo_json['body_tgt'].replace('[[[','').replace(']]]','')
           f.write(csv_source)
       elif '[[[section name]]]' in  gengo_json['body_src']:
-        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/sections.csv'.format(gengo_json['lc_tgt'])), mode='w', encoding='utf-8') as f:
+        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/sections.csv'.format(language_code)), mode='w', encoding='utf-8') as f:
           csv_source = gengo_json['body_tgt'].replace('[[[','').replace(']]]','')
           f.write(csv_source)
       else: 
@@ -304,8 +315,11 @@ class ZenDeskLocalizer:
         first_p = tree.p.string.strip()
         tree.p.decompose()  
         article_id = re.findall("[0-9]{9}$", first_p)[0]
+        
+        # translate gengo language code to zendesk code
+        language_code = GENGO_TO_ZENDESK_LOCALES[gengo_json['lc_tgt']]
 
-        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/{}.html'.format(gengo_json['lc_tgt'],article_id)), mode='w', encoding='utf-8') as f:
+        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/{}.html'.format(language_code,article_id)), mode='w', encoding='utf-8') as f:
           f.write(tree.prettify())
 
 
@@ -438,6 +452,8 @@ class ZenDeskLocalizer:
 zdl = ZenDeskLocalizer()
 if sys.argv[1] == 'package':
   zdl.package_zendesk_for_gengo_localization()
+elif sys.argv[1] == 'package-article':
+  zdl.package_zendesk_for_gengo_localization(sys.argv[2])
 elif sys.argv[1] == 'post':
   zdl.post_jobs_to_gengo()
 elif sys.argv[1] == 'retrieve':
