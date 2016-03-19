@@ -16,7 +16,7 @@ if GENGO_DEBUG:
   GENGO_API_URL = 'http://sandbox.gengo.com/v2/translate/'
 
 DATA_CONFIG = {
-  proper_nouns: [],
+  unlocalized_words: [],
 	included_categories: [],
 	included_sections: [],
 	whitelist_articles: [],

@@ -201,12 +201,12 @@ class ZenDeskLocalizer:
 
       gengo_html = re.sub("<[^>]*>", self.escape_re_for_gengo, tree.prettify())
       gengo_html = re.sub("\d+\.", self.escape_re_for_gengo, gengo_html)
-      for noun in DATA_CONFIG['proper_nouns']:
+      for noun in DATA_CONFIG['unlocalized_words']:
         gengo_html = re.sub(noun, self.escape_for_gengo(noun), gengo_html)
       
       word_delta = 0
       dont_count_substrings = ["]]]","[[[", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-      for noun in DATA_CONFIG['proper_nouns']:
+      for noun in DATA_CONFIG['unlocalized_words']:
         dont_count_substrings.append(noun)
 
       dont_count_matches = ["[", "*", "\n"]
