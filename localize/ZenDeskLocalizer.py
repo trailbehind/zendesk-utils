@@ -27,18 +27,19 @@ class ZenDeskLocalizer:
     self.word_count = 0 # count words to translate, to estimate cost
 
 
-  def package_zendesk_for_gengo_localization(self):
+  def package_zendesk_for_gengo_localization(self, article_id):
     '''
         generate files based on Help Center articles and metadata,
         to post to gengo for translation
     '''
     self.json_packager = ZendeskJsonPackager()
     self.json_packager.make_directory("handoff")
-    self.json_packager.package_zendesk_for_gengo_localization()
+    self.json_packager.package_zendesk_for_gengo_localization(article_id=article_id)
     
     self.json_packager.make_directory(TRANSLATION_RESPONSE_DIR)
-    self.package_category_titles_csv()
-    self.package_section_titles_csv()
+    if not article_id:
+      self.package_category_titles_csv()
+      self.package_section_titles_csv()
     self.package_articles()
 
   def package_category_titles_csv(self):
@@ -435,6 +436,8 @@ class ZenDeskLocalizer:
 zdl = ZenDeskLocalizer()
 if sys.argv[1] == 'package':
   zdl.package_zendesk_for_gengo_localization()
+elif sys.argv[1] == 'package-article':
+  zdl.package_zendesk_for_gengo_localization(sys.argv[2])
 elif sys.argv[1] == 'post':
   zdl.post_jobs_to_gengo()
 elif sys.argv[1] == 'retrieve':
