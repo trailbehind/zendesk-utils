@@ -13,6 +13,8 @@ import sys
 from boto.s3.key import Key
 from boto.s3.connection import OrdinaryCallingFormat
 
+import requests
+
 class ZendeskPDFMaker:
   '''
       package zendesk help center articles into a PDF
@@ -175,11 +177,18 @@ class ZendeskPDFMaker:
         generate an html file for a cover for the PDF, and return the path
     '''
     cover_html_path = 'gen/cover.html'
-    with open('cover_template.html', 'r') as cover_background_html:
-      cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> ' + localized_title.encode('UTF-8') + '</h1>' 
-      date = "{:%b %d, %Y}".format(datetime.date.today())
-      cover_html += '\n' + '<h1 style="z-index:1;color:lightgray;position:absolute;bottom:18px;right:112px">' + date + '</h1>' 
-      cover_html += '\n' + cover_background_html.read()
+    cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> ' + localized_title.encode('UTF-8') + '</h1>' 
+    date = "{:%b %d, %Y}".format(datetime.date.today())
+
+    bg_image_path = BACKGROUND_IMAGE_PATH
+    banner_image_path = BANNER_IMAGE_PATH
+    icon_image_path = ICON_IMAGE_PATH
+
+    cover_html += '\n' + '<h1 style="z-index:1;color:lightgray;position:absolute;bottom:18px;right:112px">' + date + '</h1>' 
+    cover_html += '\n' + '<img style="position:absolute; height:100%" src="{}" />'.format(bg_image_path)
+    cover_html += '\n' + '<img style="position:absolute" src="{}" />'.format(banner_image_path)
+    cover_html += '\n' + '<img style="position:absolute; bottom:20px; right:20px; width:72px" src="{}" />'.format(icon_image_path)
+
     with open(cover_html_path, 'w') as outfile:
       outfile.write(cover_html)
     return cover_html_path
@@ -210,8 +219,7 @@ class ZendeskPDFMaker:
      'margin-right': '0.75in',
      'margin-bottom': '0.75in',
      'margin-left': '0.75in',
-     'footer-right': '[page]',
-     'encoding': 'UTF-8'
+     'footer-right': '[page]'
     }
 
   def percent_cb(self, complete, total):
@@ -226,30 +234,31 @@ class ZendeskPDFMaker:
     bucket_name = S3_BUCKET_FOR_MANUAL
     bucket = conn.get_bucket(bucket_name, validate=False)
     source_dir = 'gen/pdf/'
-    manual_urls = '<h1>{}</h1>'.format("Manual PDFs")
-    printed_categories = set()
-    open_table = False
+    section_dict = {}
     for fn in os.listdir(source_dir):
       with open(source_dir + fn, 'r') as pdf_file:
         chunks = fn.split('-')
         category = chunks[0]
-        print category
-        if not category in printed_categories:
-          if open_table:
-            manual_urls += '</table>'
-          manual_urls += '<h2>{}</h2>'.format(category)
-          manual_urls += '<table>'
-          open_table = True
-          printed_categories.add(category)
         filename = '-'.join(chunks[1:len(chunks)])
+        if not category in section_dict:
+          section_dict[category] = ''
+        section_dict[category] += '<tr><td style="padding-right:10px;padding-bottom:5px"><a href=http://{}/manual/{}/{}>{}</a></td><td>http://{}/manual/{}/{}</td></tr>'.format(bucket_name, category, filename, filename, bucket_name, category, filename)
         k = Key(bucket)
         k.key = '/manual/' + category + '/' + filename
         print "POSTING PDF to S3: " + k.key
         k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
-        manual_urls += '<tr><td style="padding-right:10px;padding-bottom:5px"><a href=http://{}/manual/{}/{}>{}</a></td><td>http://{}/manual/{}/{}</td></tr>'.format(bucket_name, category, filename, filename, bucket_name, category, filename)
-    manual_urls += '</table>'
+    self.post_inventory_html(section_dict, bucket, bucket_name)
+
+  def post_inventory_html(self, section_dict, bucket, bucket_name):
+    manual_urls = '<h1>{}</h1>'.format("Manual PDFs")
+    for category in section_dict:
+      manual_urls += '<h2>{}</h2>'.format(category)
+      manual_urls += '<table>'
+      manual_urls += section_dict[category] 
+      manual_urls += '</table>'
     date = time.strftime('%l:%M%p %Z on %b %d, %Y')
     manual_urls += '<h3 style="color:gray"><em>Last Updated: {}</em></h3>'.format(date)
+
     with open('gen/url_list.html', 'w') as url_file:
       url_file.write(manual_urls)
     with open('gen/url_list.html', 'r') as url_file:
@@ -257,10 +266,24 @@ class ZendeskPDFMaker:
       k.key = '/manual/url_list.html'
       k.set_contents_from_file(url_file, cb=self.percent_cb, num_cb=1)
 
+    print "POSTED inventory html to S3 at: " + bucket_name + k.key
+
+  def ping_slack(self, slack_url):
+    payload = "Manual generation finished, see: http://{}/manual/url_list.html".format(S3_BUCKET_FOR_MANUAL)
+    r = requests.post(slack_url, data=payload)
+
 zdpm = ZendeskPDFMaker()
 if sys.argv[1] == 'create':
   zdpm.create_pdfs()
 elif sys.argv[1] == 'post':
   zdpm.post_pdfs_to_s3()
+elif sys.argv[1] == 'ping_slack' or sys.argv[1] == 'run':
+  if len(sys.argv) != 3:
+    print '{} requires a slack url as the 2nd parameter'.format(sys.argv[1])
+  else:
+    if sys.argv[1] == 'run':
+      zdpm.create_pdfs()
+      zdpm.post_pdfs_to_s3()
+    zdpm.ping_slack(sys.argv[2])
 else:
-  print("parameters are: create, post")
+  print("parameters are: create, post, ping_slack, run")
