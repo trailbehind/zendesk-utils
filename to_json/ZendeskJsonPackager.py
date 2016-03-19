@@ -10,9 +10,9 @@ class ZendeskJsonPackager:
 
   def __init__(self, article_id):
     print("STARTING: fetching JSON from Zendesk for localization")
-    self.zendesk_url = 'https://%s.zendesk.com/api/v2/help_center' % subdomain
+    self.zendesk_url = 'https://%s.zendesk.com/api/v2/help_center' % ZENDESK_SUBDOMAIN
     self.zendesk_session = requests.Session()
-    self.zendesk_session.auth = (email+'/token', token)
+    self.zendesk_session.auth = (ZENDESK_EMAIL+'/token', ZENDESK_TOKEN)
     self.zendesk_session.headers = {'Content-Type': 'application/json'}
 
     self.package_zendesk_for_gengo_localization(article_id)
