@@ -32,7 +32,18 @@ class ZenDeskLocalizer:
         generate files based on Help Center articles and metadata,
         to post to gengo for translation
     '''
-    self.json_packager = ZendeskJsonPackager()
+
+    if article_id:
+      try:
+        os.rmdir('gen');
+      except:
+        pass
+      try:
+        os.rmdir('handoff');
+      except:
+        pass
+
+    self.json_packager = ZendeskJsonPackager(article_id)
     self.json_packager.make_directory("handoff")
     self.json_packager.package_zendesk_for_gengo_localization(article_id=article_id)
     
@@ -166,7 +177,10 @@ class ZenDeskLocalizer:
 
     article_count = 0
     origin_locale = 'en-us'
+    print 'should start loop'
+    print article_dict
     for article_id in article_dict:
+      print article_id
       url = 'https://{}.zendesk.com/api/v2/help_center/articles/{}/translations/{}.json'.format(subdomain, article_id, origin_locale)
       article = article_dict[article_id]
       response = self.zendesk_session.get(url)

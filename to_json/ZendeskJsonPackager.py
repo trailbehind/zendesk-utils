@@ -8,14 +8,14 @@ class ZendeskJsonPackager:
       utility for localization and pdification
   '''  
 
-  def __init__(self):
+  def __init__(self, article_id):
     print("STARTING: fetching JSON from Zendesk for localization")
     self.zendesk_url = 'https://%s.zendesk.com/api/v2/help_center' % subdomain
     self.zendesk_session = requests.Session()
     self.zendesk_session.auth = (email+'/token', token)
     self.zendesk_session.headers = {'Content-Type': 'application/json'}
 
-    self.package_zendesk_for_gengo_localization()
+    self.package_zendesk_for_gengo_localization(article_id)
     
 
   def package_zendesk_for_gengo_localization(self, article_id=None):
@@ -203,7 +203,7 @@ class ZendeskJsonPackager:
     
     if article_id:
       for article in self.fetch_all_articles():
-        if article_id == article['id']:
+        if article_id == str(article['id']):
           section_id = str(article['section_id'])
           category_id = str(section_dict[section_id]['category_id'])
           json_dict[article['id']] = {'title': article['title'], 
