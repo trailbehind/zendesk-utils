@@ -314,8 +314,11 @@ class ZenDeskLocalizer:
         first_p = tree.p.string.strip()
         tree.p.decompose()  
         article_id = re.findall("[0-9]{9}$", first_p)[0]
+        
+        # translate gengo language code to zendesk code
+        language_code = GENGO_TO_ZENDESK_LOCALES[gengo_json['lc_tgt']]
 
-        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/{}.html'.format(gengo_json['lc_tgt'],article_id)), mode='w', encoding='utf-8') as f:
+        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/{}.html'.format(language_code,article_id)), mode='w', encoding='utf-8') as f:
           f.write(tree.prettify())
 
 
