@@ -293,17 +293,18 @@ class ZenDeskLocalizer:
       self.set_api_sig(data)
       get_order = requests.get(job_url, params=data, headers=self.gengo_headers)
       gengo_json = self.handle_response(get_order)['response']['job']
+      language_code = GENGO_TO_ZENDESK_LOCALES[gengo_json['lc_tgt']]
       try:
-        os.mkdir( "{}{}".format(TRANSLATION_RESPONSE_DIR,gengo_json['lc_tgt']));
+        os.mkdir( "{}{}".format(TRANSLATION_RESPONSE_DIR,language_code));
       except:
         print("gen already exists")
 
       if '[[[category name]]]' in gengo_json['body_src']:
-        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/categories.csv'.format(gengo_json['lc_tgt'])), mode='w', encoding='utf-8') as f:
+        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/categories.csv'.format(language_code)), mode='w', encoding='utf-8') as f:
           csv_source = gengo_json['body_tgt'].replace('[[[','').replace(']]]','')
           f.write(csv_source)
       elif '[[[section name]]]' in  gengo_json['body_src']:
-        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/sections.csv'.format(gengo_json['lc_tgt'])), mode='w', encoding='utf-8') as f:
+        with open(os.path.join(TRANSLATION_RESPONSE_DIR, '{}/sections.csv'.format(language_code)), mode='w', encoding='utf-8') as f:
           csv_source = gengo_json['body_tgt'].replace('[[[','').replace(']]]','')
           f.write(csv_source)
       else: 
