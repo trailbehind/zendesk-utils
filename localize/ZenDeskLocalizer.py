@@ -1,6 +1,7 @@
 import hmac, time, sys, os, re, csv, math, json, requests
 from bs4 import BeautifulSoup
 from hashlib import sha1
+import shutil
 from project_settings import *
 from ZendeskJsonPackager import ZendeskJsonPackager 
 
@@ -35,11 +36,11 @@ class ZenDeskLocalizer:
 
     if article_id:
       try:
-        os.rmdir('gen');
+        shutil.rmtree('gen');
       except:
         pass
       try:
-        os.rmdir('handoff');
+        shutil.rmtree('handoff');
       except:
         pass
 
