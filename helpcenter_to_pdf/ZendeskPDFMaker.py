@@ -1,43 +1,43 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, logging, sys, json, urlparse, datetime, codecs, time
-from ZendeskJsonPackager import ZendeskJsonPackager 
+import os, logging, sys, json, urllib, datetime, codecs, time
 from bs4 import BeautifulSoup
-from project_settings import *
 import pdfkit
 from subprocess import check_output
+import requests
 
 import boto
 import sys
 from boto.s3.key import Key
 from boto.s3.connection import OrdinaryCallingFormat
 
-import requests
+from to_json.ZendeskJsonPackager import ZendeskJsonPackager
+from localize.project_settings import *
 
 class ZendeskPDFMaker:
   '''
       package zendesk help center articles into a PDF
-  '''  
+  '''
 
   def create_pdfs(self):
     '''
         generate PDF files based on Help Center articles and metadata
     '''
-    
+
     # make PDFs for each category except blacklisted categories
     self.blacklist_categories = DATA_CONFIG['category_blacklist_for_pdfs']
 
     # set these to 1 or 2 for testing
-    self.max_section_count = sys.maxint
-    self.max_article_count = sys.maxint
+    self.max_section_count = sys.maxsize
+    self.max_article_count = sys.maxsize
 
     self.json_packager = ZendeskJsonPackager()
     self.json_packager.make_directory("gen")
     self.json_packager.make_directory("gen/pdf")
     self.json_packager.package_zendesk_for_gengo_localization()
     self.create_pdf_files()
-     
+
   def create_pdf_files(self):
     '''
         create PDFs from help center locales
@@ -81,9 +81,9 @@ class ZendeskPDFMaker:
             translation = self.translation_for_article(article['id'], locale)
             if not translation:
               continue
-            pdf_story = self.append_article_to_pdf_html(article_count, 
-                                                        pdf_story, 
-                                                        translation['title'], 
+            pdf_story = self.append_article_to_pdf_html(article_count,
+                                                        pdf_story,
+                                                        translation['title'],
                                                         translation['body'],
                                                         self.localized_name_for_section(section, locale))
             article_count += 1
@@ -101,13 +101,13 @@ class ZendeskPDFMaker:
     with open('data/localized_toc_titles.json', 'r') as local_toc_titles:
       local_toc_dict = json.load(local_toc_titles)
 
-    pdfkit.from_string(pdf_story, 
-                       "gen/pdf/{}-{}.pdf".format(category_name, locale), 
-                       toc=self.table_of_contents_dict(local_toc_dict[locale]), 
-                       cover=self.path_for_created_cover(local_title_dict[locale]), 
+    pdfkit.from_string(pdf_story,
+                       "gen/pdf/{}-{}.pdf".format(category_name, locale),
+                       toc=self.table_of_contents_dict(local_toc_dict[locale]),
+                       cover=self.path_for_created_cover(local_title_dict[locale]),
                        options=self.wkhtmltopdf_options()
                       )
-  
+
   def translation_for_article(self, article_id, locale):
     '''
        fetch and return the translation dict for an article from Zendesk
@@ -121,14 +121,14 @@ class ZendeskPDFMaker:
       return None
 
   def append_article_to_pdf_html(self, article_count, pdf_story, localized_title, localized_body, localized_section_name):
-    ''' 
+    '''
         add a header and article and return the updated html for the pdf
     '''
     soup = self.clean_soup_for_printing(BeautifulSoup(localized_body, "html.parser"))
     if article_count == 0:
       pdf_story += '<h1 style="page-break-before:always;font-size:1em">' + localized_section_name  + '</h1>'
     else:
-      pdf_story += '<strong style="display:block;page-break-before:always">' + localized_section_name + '</strong>'              
+      pdf_story += '<strong style="display:block;page-break-before:always">' + localized_section_name + '</strong>'
     pdf_story += '<h2>' + localized_title + '</h2>'
     pdf_story += soup.prettify()
     return pdf_story
@@ -167,9 +167,9 @@ class ZendeskPDFMaker:
     '''
     for tag in soup.find_all('a'):
       if tag['href'].startswith('/'):
-        tag['href'] = urlparse.urljoin(url, tag['href'])
+        tag['href'] = urllib.parse.urljoin(url, tag['href'])
     for tag in soup.find_all('img'):
-      tag['src'] = urlparse.urljoin(url, tag['src'])
+      tag['src'] = urllib.parse.urljoin(url, tag['src'])
     return soup
 
   def path_for_created_cover(self, localized_title):
@@ -177,14 +177,14 @@ class ZendeskPDFMaker:
         generate an html file for a cover for the PDF, and return the path
     '''
     cover_html_path = 'gen/cover.html'
-    cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> ' + localized_title.encode('UTF-8') + '</h1>' 
+    cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> ' + localized_title.encode('UTF-8') + '</h1>'
     date = "{:%b %d, %Y}".format(datetime.date.today())
 
     bg_image_path = BACKGROUND_IMAGE_PATH
     banner_image_path = BANNER_IMAGE_PATH
     icon_image_path = ICON_IMAGE_PATH
 
-    cover_html += '\n' + '<h1 style="z-index:1;color:lightgray;position:absolute;bottom:18px;right:112px">' + date + '</h1>' 
+    cover_html += '\n' + '<h1 style="z-index:1;color:lightgray;position:absolute;bottom:18px;right:112px">' + date + '</h1>'
     cover_html += '\n' + '<img style="position:absolute; height:100%" src="{}" />'.format(bg_image_path)
     cover_html += '\n' + '<img style="position:absolute" src="{}" />'.format(banner_image_path)
     cover_html += '\n' + '<img style="position:absolute; bottom:20px; right:20px; width:72px" src="{}" />'.format(icon_image_path)
@@ -227,9 +227,9 @@ class ZendeskPDFMaker:
     sys.stdout.flush()
 
   def post_pdfs_to_s3(self):
-    conn = boto.s3.connect_to_region('us-east-1', 
-                                     aws_access_key_id=S3_ACCESS_KEY_FOR_MANUAL, 
-                                     aws_secret_access_key=S3_SECRET_KEY_FOR_MANUAL, 
+    conn = boto.s3.connect_to_region('us-east-1',
+                                     aws_access_key_id=S3_ACCESS_KEY_FOR_MANUAL,
+                                     aws_secret_access_key=S3_SECRET_KEY_FOR_MANUAL,
                                      calling_format=OrdinaryCallingFormat())
     bucket_name = S3_BUCKET_FOR_MANUAL
     bucket = conn.get_bucket(bucket_name, validate=False)
@@ -245,7 +245,7 @@ class ZendeskPDFMaker:
         section_dict[category] += '<tr><td style="padding-right:10px;padding-bottom:5px"><a href=http://{}/manual/{}/{}>{}</a></td><td>http://{}/manual/{}/{}</td></tr>'.format(bucket_name, category, filename, filename, bucket_name, category, filename)
         k = Key(bucket)
         k.key = '/manual/' + category + '/' + filename
-        print "POSTING PDF to S3: " + k.key
+        print("POSTING PDF to S3: " + k.key)
         k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
     self.post_inventory_html(section_dict, bucket, bucket_name)
 
@@ -254,7 +254,7 @@ class ZendeskPDFMaker:
     for category in section_dict:
       manual_urls += '<h2>{}</h2>'.format(category)
       manual_urls += '<table>'
-      manual_urls += section_dict[category] 
+      manual_urls += section_dict[category]
       manual_urls += '</table>'
     date = time.strftime('%l:%M%p %Z on %b %d, %Y')
     manual_urls += '<h3 style="color:gray"><em>Last Updated: {}</em></h3>'.format(date)
@@ -266,24 +266,31 @@ class ZendeskPDFMaker:
       k.key = '/manual/url_list.html'
       k.set_contents_from_file(url_file, cb=self.percent_cb, num_cb=1)
 
-    print "POSTED inventory html to S3 at: " + bucket_name + k.key
+    print("POSTED inventory html to S3 at: " + bucket_name + k.key)
 
   def ping_slack(self, slack_url):
     payload = "Manual generation finished, see: http://{}/manual/url_list.html".format(S3_BUCKET_FOR_MANUAL)
     r = requests.post(slack_url, data=payload)
 
+def print_usage():
+    print("\nparameters are: create, post, ping_slack, run\n")
+
 zdpm = ZendeskPDFMaker()
+if len(sys.argv) < 2:
+    print_usage()
+    sys.exit(2)
+
 if sys.argv[1] == 'create':
   zdpm.create_pdfs()
 elif sys.argv[1] == 'post':
   zdpm.post_pdfs_to_s3()
 elif sys.argv[1] == 'ping_slack' or sys.argv[1] == 'run':
   if len(sys.argv) != 3:
-    print '{} requires a slack url as the 2nd parameter'.format(sys.argv[1])
+    print('{} requires a slack url as the 2nd parameter'.format(sys.argv[1]))
   else:
     if sys.argv[1] == 'run':
       zdpm.create_pdfs()
       zdpm.post_pdfs_to_s3()
     zdpm.ping_slack(sys.argv[2])
 else:
-  print("parameters are: create, post, ping_slack, run")
+  print_usage()
