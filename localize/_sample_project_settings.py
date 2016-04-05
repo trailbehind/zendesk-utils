@@ -1,9 +1,9 @@
 '''
     zendesk config
 '''
-ZENDESK_SUBDOMAIN = 'your_zendesk_domain'                
-ZENDESK_EMAIL = 'you@example.com'                       
-ZENDESK_TOKEN = ''                 
+ZENDESK_SUBDOMAIN = 'your_zendesk_domain'
+ZENDESK_EMAIL = 'you@example.com'
+ZENDESK_TOKEN = ''
 
 '''
     gengo config
@@ -12,7 +12,7 @@ GENGO_PUBLIC_KEY = ''
 GENGO_PRIVATE_KEY = ''
 GENGO_API_URL = 'http://api.gengo.com/v2/translate/'
 TRANSLATION_RESPONSE_DIR = "gen/gengo_translations/"
-    
+
 '''
     gengo sandbox config
 '''
@@ -25,16 +25,16 @@ if GENGO_DEBUG:
 '''
     select articles/words/sections/categories to translate
 '''
-DATA_CONFIG = {
-  unlocalized_words: [],            # REQUIRED
-	locales_to_translate: [],         # REQUIRED
-  category_blacklist_for_pdfs: [],  # config if batch localizing 
-	included_categories: [],          # config if batch localizing 
-	included_sections: [],            # config if batch localizing 
-	whitelist_articles: [],           # config if batch localizing 
-	blacklist_articles: [],           # config if batch localizing 
-}
-# EXAMPLE locales_to_translate: ['zh-cn', 'zh-tw', 'nl', 'fr-fr', 'fr-CA', 'de', 'it', 'pt', 'pt-BR', 'ru', 'es-419', 'es-ES', 'sv', 'tr' ]  
+DATA_CONFIG = dict(
+  unlocalized_words = [],            # REQUIRED
+  locales_to_translate = [],         # REQUIRED
+  category_blacklist_for_pdfs = [],  # config if batch localizing
+  included_categories = [],          # config if batch localizing
+  included_sections = [],            # config if batch localizing
+  whitelist_articles = [],           # config if batch localizing
+  blacklist_articles = [],           # config if batch localizing
+)
+# EXAMPLE locales_to_translate: ['zh-cn', 'zh-tw', 'nl', 'fr-fr', 'fr-CA', 'de', 'it', 'pt', 'pt-BR', 'ru', 'es-419', 'es-ES', 'sv', 'tr' ]
 
 
 '''

@@ -6,7 +6,7 @@ class ZendeskJsonPackager:
   '''
       package zendesk help center articles into JSON
       utility for localization and pdification
-  '''  
+  '''
 
   def __init__(self, article_id):
     print("STARTING: fetching JSON from Zendesk for localization")
@@ -16,7 +16,7 @@ class ZendeskJsonPackager:
     self.zendesk_session.headers = {'Content-Type': 'application/json'}
 
     self.package_zendesk_for_gengo_localization(article_id)
-    
+
 
   def package_zendesk_for_gengo_localization(self, article_id=None):
     '''
@@ -72,7 +72,7 @@ class ZendeskJsonPackager:
       return self.articles;
     else:
       print ("ZENDESK API: fetching articles: {}".format(self.zendesk_url))
-   
+
     url = '{}/articles.json'.format(self.zendesk_url)
     self.articles = []
     self.articles_done_fetching = False;
@@ -87,7 +87,7 @@ class ZendeskJsonPackager:
       for article in articles:
         self.articles.append(article)
       url = response.json()['next_page']
-  
+
     self.articles_done_fetching = True;
     return self.articles;
 
@@ -120,16 +120,16 @@ class ZendeskJsonPackager:
     sections = self.fetch_all_sections()
     included_sections = self.included_sections()
     json_dict = {}
-    
+
     # only include sections from whitelisted categories
     with open('gen/category_names.json', 'r') as category_file:
       category_dict = json.load(category_file)
 
     for section in sections:
       category_name = category_dict[str(section['category_id'])]['name']
-      json_dict[section['id']] = {'localize':self.should_localize_section(section, article_id), 
-                                  'name':section['name'], 
-                                  'category_id':section['category_id'], 
+      json_dict[section['id']] = {'localize':self.should_localize_section(section, article_id),
+                                  'name':section['name'],
+                                  'category_id':section['category_id'],
                                   'category':category_name
                                  }
 
@@ -200,20 +200,20 @@ class ZendeskJsonPackager:
       category_dict = json.load(category_file)
     with open('gen/section_names.json', 'r') as category_file:
       section_dict = json.load(category_file)
-    
+
     if article_id:
       for article in self.fetch_all_articles():
         if article_id == str(article['id']):
           section_id = str(article['section_id'])
           category_id = str(section_dict[section_id]['category_id'])
-          json_dict[article['id']] = {'title': article['title'], 
-                                    'category': category_dict[category_id]['name'], 
-                                    'category_id': category_id, 
-                                    'section': section_dict[section_id]['name'], 
-                                    'section_id': article['section_id'], 
-                                    'section': section_dict[section_id]['name'], 
-                                    'should_localize': True, 
-                                    'html_url': article['html_url'],    
+          json_dict[article['id']] = {'title': article['title'],
+                                    'category': category_dict[category_id]['name'],
+                                    'category_id': category_id,
+                                    'section': section_dict[section_id]['name'],
+                                    'section_id': article['section_id'],
+                                    'section': section_dict[section_id]['name'],
+                                    'should_localize': True,
+                                    'html_url': article['html_url'],
                                     'url': article['url']    }
           break
     else:
@@ -228,14 +228,14 @@ class ZendeskJsonPackager:
           continue
         elif not category_dict[category_id]['localize']:
           continue
-        json_dict[article['id']] = {'title': article['title'], 
-                                    'category': category_dict[category_id]['name'], 
-                                    'category_id': category_id, 
-                                    'section': section_dict[section_id]['name'], 
-                                    'section_id': article['section_id'], 
-                                    'section': section_dict[section_id]['name'], 
-                                    'should_localize': True, 
-                                    'html_url': article['html_url'],    
+        json_dict[article['id']] = {'title': article['title'],
+                                    'category': category_dict[category_id]['name'],
+                                    'category_id': category_id,
+                                    'section': section_dict[section_id]['name'],
+                                    'section_id': article['section_id'],
+                                    'section': section_dict[section_id]['name'],
+                                    'should_localize': True,
+                                    'html_url': article['html_url'],
                                     'url': article['url']    }
 
     with open('gen/article_info.json', 'w') as outfile:
