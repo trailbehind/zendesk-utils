@@ -5,7 +5,7 @@ Because the pip install didn't work for me, install a static binary from http://
 Install other Python requirements
 
     pip install -r requirements.txt
-    export PYTHONPATH=$PYTHONPATH:../localize:../to_json
+    export PYTHONPATH=$PYTHONPATH:..
 
 # Config
 

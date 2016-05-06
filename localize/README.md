@@ -4,7 +4,7 @@
 
     brew install python3
     pip install -r requirements.txt    
-    export PYTHONPATH=$PYTHONPATH:../localize:../to_json
+    export PYTHONPATH=$PYTHONPATH:..
 
 ## Config Gengo and Zendesk
 

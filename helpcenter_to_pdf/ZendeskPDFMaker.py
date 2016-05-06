@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, logging, sys, json, urllib, datetime, codecs, time
+import os, logging, sys, json, datetime, codecs, time
 from bs4 import BeautifulSoup
 import pdfkit
 from subprocess import check_output
 import requests
-
 import boto
 import sys
 from boto.s3.key import Key
@@ -14,8 +13,13 @@ from boto.s3.connection import OrdinaryCallingFormat
 
 from to_json.ZendeskJsonPackager import ZendeskJsonPackager
 from localize.project_settings import *
+from urlparse import urljoin
+
+FILE_DIR = os.path.dirname(os.path.realpath(__file__))
+ZENDESK_UTIL_DIR = os.path.abspath(os.path.join(FILE_DIR, '..'))
 
 class ZendeskPDFMaker:
+
   '''
       package zendesk help center articles into a PDF
   '''
@@ -95,14 +99,14 @@ class ZendeskPDFMaker:
         if section_count == self.max_section_count:
           break
 
-    with codecs.open('data/local_manual_titles.json', 'r') as local_manual_titles:
+    with codecs.open(os.path.join(FILE_DIR, 'data/local_manual_titles.json'), 'r') as local_manual_titles:
       local_title_dict = json.load(local_manual_titles)
 
-    with open('data/localized_toc_titles.json', 'r') as local_toc_titles:
+    with open(os.path.join(FILE_DIR, 'data/localized_toc_titles.json'), 'r') as local_toc_titles:
       local_toc_dict = json.load(local_toc_titles)
 
     pdfkit.from_string(pdf_story,
-                       "gen/pdf/{}-{}.pdf".format(category_name, locale),
+                       os.path.join(ZENDESK_UTIL_DIR, "gen/pdf/{}-{}.pdf").format(category_name, locale),
                        toc=self.table_of_contents_dict(local_toc_dict[locale]),
                        cover=self.path_for_created_cover(local_title_dict[locale]),
                        options=self.wkhtmltopdf_options()
@@ -167,9 +171,9 @@ class ZendeskPDFMaker:
     '''
     for tag in soup.find_all('a'):
       if tag['href'].startswith('/'):
-        tag['href'] = urllib.parse.urljoin(url, tag['href'])
+        tag['href'] = urljoin(url, tag['href'])
     for tag in soup.find_all('img'):
-      tag['src'] = urllib.parse.urljoin(url, tag['src'])
+      tag['src'] = urljoin(url, tag['src'])
     return soup
 
   def path_for_created_cover(self, localized_title):
@@ -197,7 +201,8 @@ class ZendeskPDFMaker:
     '''
         generate an xsl file for a ToC for the PDF, and return the path wrapped in a dict for wkhtmltopdf
     '''
-    toc_xsl_path = 'gen/toc.xsl'
+    toc_xsl_path = os.path.join(ZENDESK_UTIL_DIR, 'gen/toc.xsl')
+
     with open(toc_xsl_path, 'w') as outfile:
       toc_xsl = check_output(["wkhtmltopdf", "--dump-default-toc-xsl"])
       soup = BeautifulSoup(toc_xsl, "html.parser")
