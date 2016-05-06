@@ -1,6 +1,6 @@
 import hmac, time, sys, os, re, csv, math, json, requests
 from hashlib import sha1
-from project_settings import *
+from localize.project_settings import *
 
 class ZendeskJsonPackager:
   '''
@@ -8,7 +8,7 @@ class ZendeskJsonPackager:
       utility for localization and pdification
   '''
 
-  def __init__(self, article_id):
+  def __init__(self, article_id=None):
     print("STARTING: fetching JSON from Zendesk for localization")
     self.zendesk_url = 'https://%s.zendesk.com/api/v2/help_center' % ZENDESK_SUBDOMAIN
     self.zendesk_session = requests.Session()
