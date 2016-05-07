@@ -238,7 +238,7 @@ class ZendeskPDFMaker:
                                      calling_format=OrdinaryCallingFormat())
     bucket_name = S3_BUCKET_FOR_MANUAL
     bucket = conn.get_bucket(bucket_name, validate=False)
-    source_dir = 'gen/pdf/'
+    source_dir = os.path.join(ZENDESK_UTIL_DIR, 'gen/pdf/')
     section_dict = {}
     for fn in os.listdir(source_dir):
       with open(source_dir + fn, 'r') as pdf_file:
@@ -264,9 +264,9 @@ class ZendeskPDFMaker:
     date = time.strftime('%l:%M%p %Z on %b %d, %Y')
     manual_urls += '<h3 style="color:gray"><em>Last Updated: {}</em></h3>'.format(date)
 
-    with open('gen/url_list.html', 'w') as url_file:
+    with open(os.path.join(ZENDESK_UTIL_DIR, 'gen/url_list.html'), 'w') as url_file:
       url_file.write(manual_urls)
-    with open('gen/url_list.html', 'r') as url_file:
+    with open(os.path.join(ZENDESK_UTIL_DIR, 'gen/url_list.html'), 'r') as url_file:
       k = Key(bucket)
       k.key = '/manual/url_list.html'
       k.set_contents_from_file(url_file, cb=self.percent_cb, num_cb=1)
