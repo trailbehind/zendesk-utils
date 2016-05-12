@@ -5,6 +5,8 @@ ZENDESK_SUBDOMAIN = 'your_zendesk_domain'
 ZENDESK_EMAIL = 'you@example.com'
 ZENDESK_TOKEN = ''
 
+URL_LIST_CATEGORIES = None
+
 '''
     gengo config
 '''
@@ -54,3 +56,5 @@ BANNER_IMAGE_PATH = './data/images/logo-banner.jpg'
 
 # small square image (~72px)
 ICON_IMAGE_PATH = './data/images/app-icon.png'
+
+SLACK_NOTIFICATION_URL = None

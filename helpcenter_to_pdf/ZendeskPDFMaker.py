@@ -256,11 +256,13 @@ class ZendeskPDFMaker:
 
   def post_inventory_html(self, section_dict, bucket, bucket_name):
     manual_urls = '<h1>{}</h1>'.format("Manual PDFs")
+    
     for category in section_dict:
-      manual_urls += '<h2>{}</h2>'.format(category)
-      manual_urls += '<table>'
-      manual_urls += section_dict[category]
-      manual_urls += '</table>'
+      if URL_LIST_CATEGORIES == None  or category in URL_LIST_CATEGORIES:
+        manual_urls += '<h2>{}</h2>'.format(category)
+        manual_urls += '<table>'
+        manual_urls += section_dict[category]
+        manual_urls += '</table>'
     date = time.strftime('%l:%M%p %Z on %b %d, %Y')
     manual_urls += '<h3 style="color:gray"><em>Last Updated: {}</em></h3>'.format(date)
 
@@ -273,9 +275,9 @@ class ZendeskPDFMaker:
 
     print("POSTED inventory html to S3 at: " + bucket_name + k.key)
 
-  def ping_slack(self, slack_url):
+  def ping_slack(self):
     payload = "Manual generation finished, see: http://{}/manual/url_list.html".format(S3_BUCKET_FOR_MANUAL)
-    r = requests.post(slack_url, data=payload)
+    r = requests.post(SLACK_NOTIFICATION_URL, data=payload)
 
 def print_usage():
     print("\nparameters are: create, post, ping_slack, run\n")
@@ -289,13 +291,12 @@ if sys.argv[1] == 'create':
   zdpm.create_pdfs()
 elif sys.argv[1] == 'post':
   zdpm.post_pdfs_to_s3()
-elif sys.argv[1] == 'ping_slack' or sys.argv[1] == 'run':
-  if len(sys.argv) != 3:
-    print('{} requires a slack url as the 2nd parameter'.format(sys.argv[1]))
-  else:
-    if sys.argv[1] == 'run':
-      zdpm.create_pdfs()
-      zdpm.post_pdfs_to_s3()
-    zdpm.ping_slack(sys.argv[2])
+elif sys.argv[1] == 'ping_slack':
+  zdpm.ping_slack()
+elif sys.argv[1] == 'run':
+    zdpm.create_pdfs()
+    zdpm.post_pdfs_to_s3()
+    if SLACK_NOTIFICATION_URL:
+      zdpm.ping_slack()
 else:
   print_usage()
