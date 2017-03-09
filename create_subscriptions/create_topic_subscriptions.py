@@ -37,7 +37,7 @@ class CreateTopicSubscriptions:
 			for user in self.user_ids:
 				# Package the data in a dictionary matching the expected JSON
 				data = {"subscription": {"include_comments": True, "user_id": user}}
-				url = 'https://gaiagpshelp.zendesk.com/api/v2/community/topics/{}/subscriptions.json'.format(topic_id)
+				url = 'https://{}.zendesk.com/api/v2/community/topics/{}/subscriptions.json'.format(self.zendesk, topic_id)
 				# Encode the data to create a JSON payload
 				payload = json.dumps(data)
 

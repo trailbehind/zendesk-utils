@@ -34,7 +34,7 @@ class CreateSectionSubscriptions:
 			for user in self.user_ids:
 				# Package the data in a dictionary matching the expected JSON
 				data = {"subscription": {"source_locale": "en-us", "include_comments": True, "user_id": user}}
-				url = 'https://gaiagpshelp.zendesk.com/api/v2/help_center/sections/{}/subscriptions.json'.format(section_id)
+				url = 'https://{}.zendesk.com/api/v2/help_center/sections/{}/subscriptions.json'.format(self.zendesk, section_id)
 				# Encode the data to create a JSON payload
 				payload = json.dumps(data)
 				response = requests.post(url, data=payload, headers=self.headers, auth=(self.user, self.pwd))
