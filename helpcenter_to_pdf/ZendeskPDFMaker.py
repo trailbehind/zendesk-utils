@@ -237,6 +237,7 @@ class ZendeskPDFMaker:
                                      aws_secret_access_key=S3_SECRET_KEY_FOR_MANUAL,
                                      calling_format=OrdinaryCallingFormat())
     bucket_name = S3_BUCKET_FOR_MANUAL
+    bucket_dir = S3_DIRECTORY_FOR_MANUAL
     bucket = conn.get_bucket(bucket_name, validate=False)
     source_dir = os.path.join(ZENDESK_UTIL_DIR, 'gen/pdf/')
     section_dict = {}
@@ -247,9 +248,9 @@ class ZendeskPDFMaker:
         filename = '-'.join(chunks[1:len(chunks)])
         if not category in section_dict:
           section_dict[category] = ''
-        section_dict[category] += '<tr><td style="padding-right:10px;padding-bottom:5px"><a href=http://{}/manual/{}/{}>{}</a></td><td>http://{}/manual/{}/{}</td></tr>'.format(bucket_name, category, filename, filename, bucket_name, category, filename)
+        section_dict[category] += '<tr><td style="padding-right:10px;padding-bottom:5px"><a href=http://{}/{}/{}/{}>{}</a></td><td>http://{}/{}/{}/{}</td></tr>'.format(bucket_name, bucket_dir, category, filename, filename, bucket_name, bucket_dir, category, filename)
         k = Key(bucket)
-        k.key = '/manual/' + category + '/' + filename
+        k.key = '/' + bucket_dir + '/' + category + '/' + filename
         print("POSTING PDF to S3: " + k.key)
         k.set_contents_from_file(pdf_file,cb=self.percent_cb, num_cb=1)
     self.post_inventory_html(section_dict, bucket, bucket_name)
@@ -270,13 +271,13 @@ class ZendeskPDFMaker:
       url_file.write(manual_urls)
     with open(os.path.join(ZENDESK_UTIL_DIR, 'gen/url_list.html'), 'r') as url_file:
       k = Key(bucket)
-      k.key = '/manual/url_list.html'
+      k.key = '/' + S3_DIRECTORY_FOR_MANUAL + '/url_list.html'
       k.set_contents_from_file(url_file, cb=self.percent_cb, num_cb=1)
 
     print("POSTED inventory html to S3 at: " + bucket_name + k.key)
 
   def ping_slack(self):
-    payload = "Manual generation finished, see: http://{}/manual/url_list.html".format(S3_BUCKET_FOR_MANUAL)
+    payload = "Manual generation finished, see: http://{}/{}/url_list.html".format(S3_BUCKET_FOR_MANUAL, S3_DIRECTORY_FOR_MANUAL)
     r = requests.post(SLACK_NOTIFICATION_URL, data=payload)
 
 def print_usage():
