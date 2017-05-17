@@ -240,6 +240,7 @@ class ZendeskPDFMaker:
     bucket_dir = S3_DIRECTORY_FOR_MANUAL
     bucket = conn.get_bucket(bucket_name, validate=False)
     source_dir = os.path.join(ZENDESK_UTIL_DIR, 'gen/pdf/')
+    print "posting pdfs from %s" % source_dir
     section_dict = {}
     for fn in os.listdir(source_dir):
       with open(source_dir + fn, 'r') as pdf_file:
@@ -278,7 +279,7 @@ class ZendeskPDFMaker:
 
   def ping_slack(self):
     payload = "Manual generation finished, see: http://{}/{}/url_list.html".format(S3_BUCKET_FOR_MANUAL, S3_DIRECTORY_FOR_MANUAL)
-    r = requests.post(SLACK_NOTIFICATION_URL, data=payload)
+    #r = requests.post(SLACK_NOTIFICATION_URL, data=payload)
 
 def print_usage():
     print("\nparameters are: create, post, ping_slack, run\n")
