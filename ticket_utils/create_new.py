@@ -3,7 +3,7 @@ import requests
 
 class CreateNewTicket: 
 	def __init__(self):
-		self.zendesk = 'gaiagps'
+		self.zendesk = ''
 		self.create_ticket_url = 'https://{}.zendesk.com/api/v2/tickets.json'.format(self.zendesk)
 		self.user = '' + '/token'
 		self.pwd = ''
