@@ -1,8 +1,9 @@
 Scripts to create subscriptions to zendesk sections or forum topics
 
 To use these scripts:
-Clone the repo
-pip install requests
+1. Clone the repo
+
+2. pip install requests
 
 Creating Section Subscriptions:
 
@@ -13,8 +14,8 @@ Edit create_section_subscriptions.py
 If you don't want the user to get notified of new comments, set "include_comments" to False.
 
 
-self.user_ids -- takes a list of user ids
-self.zendesk -- The name of the help center. The name can be found in the url of the help center. https://[help_center_name].zendesk.com/
+self.user_ids -- takes a list of user ids (this will be a number)
+self.zendesk -- The name of the help center. The name can be found in the url of the help center. https://[help_center_name].zendesk.com/ ('gaiagps' - The updated Help Center as of 2018; 'commteamstrong'- support help center)
 self.user -- Email address for your Zendesk account + the word /token
 self.pwd -- API token for your Zendesk account
 
@@ -27,7 +28,7 @@ Edit create_topic_subscriptions.py
 If you don't want the user to get notified of new comments, set "include_comments" to False.
 
 
-self.user_ids -- takes a list of user ids
+self.user_ids -- takes a list of user ids (this will be a number)
 self.zendesk -- The name of the help center. The name can be found in the url of the help center. https://[help_center_name].zendesk.com/
 self.user -- Email address for your Zendesk account + the word /token
 self.pwd -- API token for your Zendesk account
