@@ -49,12 +49,12 @@ S3_ACCESS_KEY_FOR_MANUAL = ''
 S3_SECRET_KEY_FOR_MANUAL = ''
 
 # 8.5 x 11 image
-BACKGROUND_IMAGE_PATH = './data/images/background.png'
+BACKGROUND_IMAGE_PATH = '/data/images/background.png'
 
 # n X 11 image
-BANNER_IMAGE_PATH = './data/images/logo-banner.jpg'
+BANNER_IMAGE_PATH = '/data/images/logo-banner.jpg'
 
 # small square image (~72px)
-ICON_IMAGE_PATH = './data/images/app-icon.png'
+ICON_IMAGE_PATH = '/data/images/app-icon.png'
 
 SLACK_NOTIFICATION_URL = None

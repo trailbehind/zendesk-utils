@@ -10,10 +10,11 @@ import boto
 import sys
 from boto.s3.key import Key
 from boto.s3.connection import OrdinaryCallingFormat
+import logging
 
 from to_json.ZendeskJsonPackager import ZendeskJsonPackager
 from localize.project_settings import *
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 FILE_DIR = os.path.dirname(os.path.realpath(__file__))
 ZENDESK_UTIL_DIR = os.path.abspath(os.path.join(FILE_DIR, '..'))
@@ -181,7 +182,8 @@ class ZendeskPDFMaker:
         generate an html file for a cover for the PDF, and return the path
     '''
     cover_html_path = 'gen/cover.html'
-    cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> ' + localized_title.encode('UTF-8') + '</h1>'
+    cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> ' + localized_title + '</h1>'
+    cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> </h1>'
     date = "{:%b %d, %Y}".format(datetime.date.today())
 
     bg_image_path = os.path.join(ZENDESK_UTIL_DIR, BACKGROUND_IMAGE_PATH)
@@ -202,8 +204,8 @@ class ZendeskPDFMaker:
         generate an xsl file for a ToC for the PDF, and return the path wrapped in a dict for wkhtmltopdf
     '''
     toc_xsl_path = os.path.join(ZENDESK_UTIL_DIR, 'gen/toc.xsl')
-
-    with open(toc_xsl_path, 'w') as outfile:
+    
+    with open(toc_xsl_path, 'wb') as outfile:
       toc_xsl = check_output(["wkhtmltopdf", "--dump-default-toc-xsl"])
       soup = BeautifulSoup(toc_xsl, "html.parser")
       for tag in soup.find_all('h1'):
@@ -240,7 +242,7 @@ class ZendeskPDFMaker:
     bucket_dir = S3_DIRECTORY_FOR_MANUAL
     bucket = conn.get_bucket(bucket_name, validate=False)
     source_dir = os.path.join(ZENDESK_UTIL_DIR, 'gen/pdf/')
-    print "posting pdfs from %s" % source_dir
+    print ("posting pdfs from %s" % source_dir)
     section_dict = {}
     for fn in os.listdir(source_dir):
       with open(source_dir + fn, 'r') as pdf_file:
