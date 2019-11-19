@@ -55,6 +55,6 @@ BACKGROUND_IMAGE_PATH = '/data/images/background.png'
 BANNER_IMAGE_PATH = '/data/images/logo-banner.jpg'
 
 # small square image (~72px)
-ICON_IMAGE_PATH = '/data/images/app-icon.png'
+ICON_IMAGE_PATH = '/data/images/app-icon.jpg'
 
 SLACK_NOTIFICATION_URL = None

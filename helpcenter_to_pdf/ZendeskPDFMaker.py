@@ -167,9 +167,6 @@ class ZendeskPDFMaker:
     for match in soup.find_all(['span', 'font']):
       match.unwrap()
 
-    # limit max image height
-    # soup = self.reduce_large_images(soup)
-
     # make img src urls absolute so images render
     # make hrefs absolute so clicking works
     return self.make_urls_absolute(soup, self.json_packager.zendesk_url)
@@ -185,20 +182,6 @@ class ZendeskPDFMaker:
       tag['src'] = urljoin(url, tag['src'])
     return soup
 
-  def reduce_large_images(self, soup):
-    ''' 
-    Reduce height of large images
-    '''
-
-    for image in soup.find_all('img', height=True):
-      if int(image['height']) > 400:
-        ratio = int(image['height'])/int(image['width'])
-        image['height'] = "200"
-        image['width'] = str(int(200/ratio))
-
-
-    return soup
-
 
   def path_for_created_cover(self, localized_title):
     '''
@@ -206,7 +189,6 @@ class ZendeskPDFMaker:
     '''
     cover_html_path = 'gen/cover.html'
     cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> ' + localized_title + '</h1>'
-    cover_html = '<h1 style="font-size:4em;z-index:1;margin-top:50%;margin-left:20px;color:white;position:absolute"> </h1>'
     date = "{:%b %d, %Y}".format(datetime.date.today())
 
     bg_image_path = os.path.join(ZENDESK_UTIL_DIR, BACKGROUND_IMAGE_PATH)
