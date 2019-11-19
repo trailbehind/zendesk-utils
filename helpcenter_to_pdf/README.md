@@ -4,7 +4,7 @@ Because the pip install didn't work for me, install a static binary from http://
 
 TOC isn't created with standard wkhtmltopdf install. See https://github.com/wkhtmltopdf/wkhtmltopdf/issues/3953
 
-Instead install wkhtmltopdf 0.12.6
+Instead install wkhtmltopdf 0.12.6-dev release - https://builds.wkhtmltopdf.org/0.12.6-dev/
 
 Install other Python requirements
 

@@ -106,6 +106,9 @@ class ZendeskPDFMaker:
     with open(os.path.join(FILE_DIR, 'data/localized_toc_titles.json'), 'r') as local_toc_titles:
       local_toc_dict = json.load(local_toc_titles)
 
+    with open(os.path.join(FILE_DIR, 'data/pdf_story.html'), 'w') as html_story_doc:
+      html_story_doc.write(pdf_story)
+
     pdfkit.from_string(pdf_story,
                        os.path.join(ZENDESK_UTIL_DIR, "gen/pdf/{}-{}.pdf").format(category_name, locale),
                        toc=self.table_of_contents_dict(local_toc_dict[locale]),
@@ -152,15 +155,20 @@ class ZendeskPDFMaker:
     return localized_section_name
 
   def clean_soup_for_printing(self, soup):
+    
+
     # makes wkhtmltopdf faster to render
     [s.extract() for s in soup(['iframe', 'script'])]
     for tag in soup():
-      for attribute in ["class", "id", "alt", "style", "target", "width", "height"]:
+      for attribute in ["class", "id", "alt", "style", "target"]:
         del tag[attribute]
 
     # this might make it faster too
     for match in soup.find_all(['span', 'font']):
       match.unwrap()
+
+    # limit max image height
+    # soup = self.reduce_large_images(soup)
 
     # make img src urls absolute so images render
     # make hrefs absolute so clicking works
@@ -176,6 +184,21 @@ class ZendeskPDFMaker:
     for tag in soup.find_all('img'):
       tag['src'] = urljoin(url, tag['src'])
     return soup
+
+  def reduce_large_images(self, soup):
+    ''' 
+    Reduce height of large images
+    '''
+
+    for image in soup.find_all('img', height=True):
+      if int(image['height']) > 400:
+        ratio = int(image['height'])/int(image['width'])
+        image['height'] = "200"
+        image['width'] = str(int(200/ratio))
+
+
+    return soup
+
 
   def path_for_created_cover(self, localized_title):
     '''
