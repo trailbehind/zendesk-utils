@@ -1,0 +1,45 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: check-json
+      - id: check-yaml
+      - id: check-xml
+      - id: check-merge-conflict
+      - id: no-commit-to-branch
+        args: [--branch, master]
+      - id: flake8
+        exclude: >
+          (?x)^(
+              ticket_utils/*|
+              clone_help_center/*|
+              uservoice_to_zendesk/*|
+              create_subscription/*
+          )$
+        args: [--config, .flake8]
+  - repo: https://github.com/asottile/reorder_python_imports
+    rev: v1.6.1
+    hooks:
+      - id: reorder-python-imports
+        args: [--application-directories=gaia]
+        language_version: python3
+  - repo: https://github.com/ambv/black
+    rev: 19.3b0
+    hooks:
+      - id: black
+        language_version: python3
+        exclude: >
+          (?x)^(
+              ticket_utils/*|
+              clone_help_center/*|
+              uservoice_to_zendesk/*|
+              create_subscription/*
+          )$
+  - repo: https://github.com/prettier/prettier
+    rev: 1.18.2
+    hooks:
+      - id: prettier
+        files: \.(yml|yaml|md|json)$
+        language_version: system
+        exclude: .github/issue_template.md
