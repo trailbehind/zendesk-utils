@@ -336,7 +336,12 @@ class ZendeskPDFMaker:
             filename = bucket_dir + "/" + filename
             filepath = source_dir + fn
             print(filepath)
-            s3_client.upload_file(filepath, bucket_name, filename)
+            s3_client.upload_file(
+                filepath,
+                bucket_name,
+                filename,
+                ExtraArgs={"ContentType": "application/pdf"},
+            )
 
             print("POSTING PDF to S3: " + filename)
 
