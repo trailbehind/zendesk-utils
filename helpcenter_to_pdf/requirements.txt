@@ -1,5 +1,5 @@
 beautifulsoup4
-boto
+boto3
 requests
 
 # use this because pdfkit otherwise puts ToC before cover
