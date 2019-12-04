@@ -114,16 +114,22 @@ class ZendeskPDFMaker:
                     break
 
         with codecs.open(
-            os.path.join(FILE_DIR, "data/local_manual_titles.json"), "r"
+            os.path.join(FILE_DIR, "data/local_manual_titles.json"),
+            "r",
+            encoding="utf-8",
         ) as local_manual_titles:
             local_title_dict = json.load(local_manual_titles)
 
         with open(
-            os.path.join(FILE_DIR, "data/localized_toc_titles.json"), "r"
+            os.path.join(FILE_DIR, "data/localized_toc_titles.json"),
+            "r",
+            encoding="utf-8",
         ) as local_toc_titles:
             local_toc_dict = json.load(local_toc_titles)
 
-        with open(os.path.join(FILE_DIR, "data/pdf_story.html"), "w") as html_story_doc:
+        with open(
+            os.path.join(FILE_DIR, "data/pdf_story.html"), "w", encoding="utf-8"
+        ) as html_story_doc:
             html_story_doc.write(pdf_story)
 
         pdfkit.from_string(

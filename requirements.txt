@@ -1,6 +1,7 @@
 beautifulsoup4==4.4.1
 boto==2.39.0
 requests==2.20.0
+boto3
 
 # use this because pdfkit otherwise puts ToC before cover
 # see: https://github.com/JazzCore/python-pdfkit/pull/23

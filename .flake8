@@ -1,0 +1,6 @@
+[flake8]
+max-line-length = 88
+# Match black max line length
+extend-ignore = E203,E501,W291
+# See https://github.com/PyCQA/pycodestyle/issues/373
+    
