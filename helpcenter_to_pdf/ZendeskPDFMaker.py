@@ -321,7 +321,7 @@ class ZendeskPDFMaker:
             chunks = fn.split("-")
             category = chunks[0]
 
-            filename = chunks[0] + "-" + chunks[1] + ".pdf"
+            filename = chunks[0] + "/" + chunks[1] + "-" + chunks[2]
             print(filename)
             print(bucket_name)
             if category not in section_dict:
@@ -351,7 +351,7 @@ class ZendeskPDFMaker:
 
             print("POSTING PDF to S3: " + filename)
 
-        self.post_inventory_html(section_dict, bucket_name)
+        # self.post_inventory_html(section_dict, bucket_name)
 
     def post_inventory_html(self, section_dict, bucket_name):
         manual_urls = "<h1>{}</h1>".format("Manual PDFs")

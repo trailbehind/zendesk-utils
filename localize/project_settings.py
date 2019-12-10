@@ -31,11 +31,7 @@ if GENGO_DEBUG:
 DATA_CONFIG = dict(
     unlocalized_words=[],  # REQUIRED
     locales_to_translate=[],  # REQUIRED
-    category_blacklist_for_pdfs=[
-        "Additional Topics",
-        "Android",
-        "iOS",
-    ],  # config if batch localizing
+    category_blacklist_for_pdfs=["Additional Topics"],  # config if batch localizing
     included_categories=[],  # config if batch localizing
     included_sections=[],  # config if batch localizing
     whitelist_articles=[],  # config if batch localizing
@@ -49,7 +45,7 @@ DATA_CONFIG = dict(
    settings for look and feel of cover
    point these at your images to customize the PDF cover pages
 """
-S3_DIRECTORY_FOR_MANUAL = "manual"
+S3_DIRECTORY_FOR_MANUAL = "user-manual"
 S3_BUCKET_FOR_MANUAL = "static.gaiagps.com"
 
 # 8.5 x 11 image
