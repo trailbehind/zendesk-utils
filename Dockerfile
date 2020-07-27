@@ -1,8 +1,10 @@
 FROM ubuntu:18.04
 
 # Install dependencies
+
 RUN apt-get update && apt-get install -y \
     software-properties-common
+ENV DEBIAN_FRONTEND noninteractive
 RUN add-apt-repository universe
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update && apt-get install -y \
@@ -38,8 +40,10 @@ RUN apt-get install -y build-essential xorg libssl-dev libxrender-dev wget gdebi
 # RUN wget https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
 # RUN gdebi --n wkhtmltox_0.12.5-1.bionic_amd64.deb
 
-RUN wget https://builds.wkhtmltopdf.org/0.12.6-dev/wkhtmltox_0.12.6-0.20180618.3.dev.e6d6f54.bionic_amd64.deb
-RUN gdebi --n wkhtmltox_0.12.6-0.20180618.3.dev.e6d6f54.bionic_amd64.deb
+# RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
+# RUN gdebi --n wkhtmltox_0.12.6-1.bionic_amd64.deb
+RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
+RUN gdebi --n wkhtmltox_0.12.5-1.bionic_amd64.deb
 
 
 
