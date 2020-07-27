@@ -1,3 +1,15 @@
+# Generate and Post PDFs in Docker
+
+Build docker image
+
+    docker build <image name> .
+
+Run docker image
+
+    docker run <image name>
+
+The setup below can be skipped if running in docker
+
 # Install wkhtmltopdf
 
 Because the pip install didn't work for me, install a static binary from http://wkhtmltopdf.org/
