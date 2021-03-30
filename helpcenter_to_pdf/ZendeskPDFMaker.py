@@ -95,7 +95,7 @@ class ZendeskPDFMaker:
                         translation = self.translation_for_article(
                             article["id"], locale
                         )
-                        if not translation:
+                        if not translation or not translation["body"]:
                             continue
                         pdf_story = self.append_article_to_pdf_html(
                             article_count,
@@ -227,8 +227,13 @@ class ZendeskPDFMaker:
         pdfkit needs absolute urls
     """
         for tag in soup.find_all("a"):
-            if tag["href"].startswith("/"):
-                tag["href"] = urljoin(url, tag["href"])
+            if isinstance(tag, list):
+                for sub_tag in tag:
+                    if "href" in tag and tag["href"].startswith("/"):
+                        tag["href"] = urljoin(url, tag["href"])
+            else:
+                if "href" in tag and tag["href"].startswith("/"):
+                    tag["href"] = urljoin(url, tag["href"])
         for tag in soup.find_all("img"):
             tag["src"] = urljoin(url, tag["src"])
         return soup

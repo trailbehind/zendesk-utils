@@ -3,7 +3,8 @@
 """
 ZENDESK_SUBDOMAIN = "gaiagps"
 # ZENDESK_SUBDOMAIN = 'gaiagpshelp'
-ZENDESK_EMAIL = "torrey@gaiagps.com"
+
+ZENDESK_EMAIL = "support+devsupport@gaiagps.com"
 ZENDESK_TOKEN = "SeY2EuSQT26GAOaZgMJTjwejuvZSzgLM2PuFcFzi"
 
 URL_LIST_CATEGORIES = None
