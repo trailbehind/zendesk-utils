@@ -38,11 +38,22 @@ class ZendeskJsonPackager:
       print ("ZENDESK API: fetching categories")
 
     url = '{}/categories.json'.format(self.zendesk_url)
-    response = self.zendesk_session.get(url)
-    if response.status_code != 200:
-      print('FAILED to get category list with error {}'.format(response.status_code))
-      exit()
-    self.categories = response.json()['categories']
+    self.categories = []
+    self.categories_done_fetching = False
+
+    # page through all categories, 30 at a time
+    while url:
+      response = self.zendesk_session.get(url)
+      if response.status_code != 200:
+        print('FAILED to get category list with error {}'.format(response.status_code))
+        exit()
+    
+      categories = response.json()['categories']
+      for category in categories:
+        self.categories.append(category)
+      url = response.json()['next_page']
+    
+    self.categories_done_fetching = True
     return self.categories
 
 
@@ -55,12 +66,23 @@ class ZendeskJsonPackager:
     else:
       print ("ZENDESK API: fetching sections")
 
-    url = '{}/sections.json'.format(self.zendesk_url) + '?page[size]=100'
-    response = self.zendesk_session.get(url)
-    if response.status_code != 200:
-      print('FAILED to get section list with error {}'.format(response.status_code))
-      exit()
-    self.sections = response.json()['sections']
+    url = '{}/sections.json'.format(self.zendesk_url)
+    self.sections = []
+    self.sections_done_fetching = False
+
+    # page through all sections, 30 at a time
+    while url:
+      response = self.zendesk_session.get(url)
+      if response.status_code != 200:
+        print('FAILED to get section list with error {}'.format(response.status_code))
+        exit()
+    
+      sections = response.json()['sections']
+      for section in sections:
+        self.sections.append(section)
+      url = response.json()['next_page']
+    
+    self.sections_done_fetching = True
     return self.sections
 
 
