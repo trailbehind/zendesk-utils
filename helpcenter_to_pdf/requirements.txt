@@ -1,7 +1,9 @@
 beautifulsoup4
-boto
+boto3
 requests
+pdfkit
 
+# As of September 2023, this workaround has been merged into pdfkit master and is no longer required.
 # use this because pdfkit otherwise puts ToC before cover
 # see: https://github.com/JazzCore/python-pdfkit/pull/23
-git+git://github.com/signalkraft/python-pdfkit.git@b30c104b4db93d7f12ade018473c57779ac2a77e
+# git+git://github.com/signalkraft/python-pdfkit.git@b30c104b4db93d7f12ade018473c57779ac2a77e

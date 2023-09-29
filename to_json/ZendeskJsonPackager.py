@@ -33,7 +33,7 @@ class ZendeskJsonPackager:
         fetch all categories from zendesk and return them as json
     '''
     if hasattr(self, 'categories'):
-      return self.categories;
+      return self.categories
     else:
       print ("ZENDESK API: fetching categories")
 
@@ -51,11 +51,11 @@ class ZendeskJsonPackager:
         fetch all sections from zendesk and return them as json
     '''
     if hasattr(self, 'sections'):
-      return self.sections;
+      return self.sections
     else:
       print ("ZENDESK API: fetching sections")
 
-    url = '{}/sections.json'.format(self.zendesk_url)
+    url = '{}/sections.json'.format(self.zendesk_url) + '?page[size]=100'
     response = self.zendesk_session.get(url)
     if response.status_code != 200:
       print('FAILED to get section list with error {}'.format(response.status_code))
@@ -69,13 +69,13 @@ class ZendeskJsonPackager:
         fetch all articles from zendesk and return them as json
     '''
     if hasattr(self, 'articles'):
-      return self.articles;
+      return self.articles
     else:
       print ("ZENDESK API: fetching articles: {}".format(self.zendesk_url))
 
     url = '{}/articles.json'.format(self.zendesk_url)
     self.articles = []
-    self.articles_done_fetching = False;
+    self.articles_done_fetching = False
 
     # page through all articles, 30 at a time
     while url:
@@ -88,8 +88,8 @@ class ZendeskJsonPackager:
         self.articles.append(article)
       url = response.json()['next_page']
 
-    self.articles_done_fetching = True;
-    return self.articles;
+    self.articles_done_fetching = True
+    return self.articles
 
 
   def gen_category_titles_json(self, article_id=None):
@@ -174,10 +174,10 @@ class ZendeskJsonPackager:
        generate sections for whitelisted articles
     '''
     if hasattr(self, 'missing_section_ids'):
-      return self.missing_section_ids;
+      return self.missing_section_ids
 
     self.missing_section_ids = []
-    articles = self.fetch_all_articles();
+    articles = self.fetch_all_articles()
     for article in articles:
       section_id = str(article['section_id'])
       if article['id'] in DATA_CONFIG['blacklist_articles']:
@@ -185,7 +185,7 @@ class ZendeskJsonPackager:
       if article['id'] in DATA_CONFIG['whitelist_articles']:
         if not article['section_id'] in self.missing_section_ids:
           self.missing_section_ids.append(article['section_id'])
-    return self.missing_section_ids;
+    return self.missing_section_ids
 
 
   def gen_articles_json(self, article_id=None):
@@ -247,6 +247,6 @@ class ZendeskJsonPackager:
        make a directory or complain it already exists
     '''
     try:
-      os.mkdir(new_dir);
+      os.mkdir(new_dir)
     except:
       print("WARNING: cant make directory '{}', already exists (probably OK)".format(new_dir))
