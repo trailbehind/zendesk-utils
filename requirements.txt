@@ -1,8 +1,17 @@
-beautifulsoup4==4.4.1
-boto==2.39.0
-requests==2.20.0
-boto3
-
-# use this because pdfkit otherwise puts ToC before cover
-# see: https://github.com/JazzCore/python-pdfkit/pull/23
-git+git://github.com/signalkraft/python-pdfkit.git@b30c104b4db93d7f12ade018473c57779ac2a77e
+# The only packages that are required for this are beautifulsoup4, pdfkit, boto3 and requests. 
+# The rest are dependencies of those packages.
+beautifulsoup4==4.12.2
+boto3==1.15.18
+botocore==1.18.18
+certifi==2023.7.22
+chardet==3.0.4
+charset-normalizer==3.2.0
+idna==2.7
+jmespath==0.10.0
+pdfkit==1.0.0
+python-dateutil==2.8.2
+requests==2.31.0
+s3transfer==0.3.7
+six==1.16.0
+soupsieve==2.5
+urllib3==1.24.3

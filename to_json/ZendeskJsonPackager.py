@@ -55,7 +55,7 @@ class ZendeskJsonPackager:
     else:
       print ("ZENDESK API: fetching sections")
 
-    url = '{}/sections.json'.format(self.zendesk_url)
+    url = '{}/sections.json'.format(self.zendesk_url) + '?page[size]=100'
     response = self.zendesk_session.get(url)
     if response.status_code != 200:
       print('FAILED to get section list with error {}'.format(response.status_code))

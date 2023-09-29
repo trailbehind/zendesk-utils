@@ -140,6 +140,7 @@ class ZendeskPDFMaker:
             toc=self.table_of_contents_dict(local_toc_dict[locale]),
             cover=self.path_for_created_cover(local_title_dict[locale]),
             options=self.wkhtmltopdf_options(),
+            cover_first=True,
         )
 
     def translation_for_article(self, article_id, locale):
@@ -306,6 +307,7 @@ class ZendeskPDFMaker:
             "margin-bottom": "0.75in",
             "margin-left": "0.75in",
             "footer-right": "[page]",
+            "enable-local-file-access": "",
         }
 
     def percent_cb(self, complete, total):
