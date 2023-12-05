@@ -39,7 +39,6 @@ class ZendeskJsonPackager:
 
     url = '{}/categories.json'.format(self.zendesk_url)
     self.categories = []
-    self.categories_done_fetching = False
 
     # page through all categories, 30 at a time
     while url:
@@ -53,7 +52,6 @@ class ZendeskJsonPackager:
         self.categories.append(category)
       url = response.json()['next_page']
     
-    self.categories_done_fetching = True
     return self.categories
 
 
@@ -68,7 +66,6 @@ class ZendeskJsonPackager:
 
     url = '{}/sections.json'.format(self.zendesk_url)
     self.sections = []
-    self.sections_done_fetching = False
 
     # page through all sections, 30 at a time
     while url:
@@ -82,7 +79,6 @@ class ZendeskJsonPackager:
         self.sections.append(section)
       url = response.json()['next_page']
     
-    self.sections_done_fetching = True
     return self.sections
 
 
@@ -97,7 +93,6 @@ class ZendeskJsonPackager:
 
     url = '{}/articles.json'.format(self.zendesk_url)
     self.articles = []
-    self.articles_done_fetching = False
 
     # page through all articles, 30 at a time
     while url:
@@ -110,7 +105,6 @@ class ZendeskJsonPackager:
         self.articles.append(article)
       url = response.json()['next_page']
 
-    self.articles_done_fetching = True
     return self.articles
 
 
