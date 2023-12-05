@@ -38,11 +38,20 @@ class ZendeskJsonPackager:
       print ("ZENDESK API: fetching categories")
 
     url = '{}/categories.json'.format(self.zendesk_url)
-    response = self.zendesk_session.get(url)
-    if response.status_code != 200:
-      print('FAILED to get category list with error {}'.format(response.status_code))
-      exit()
-    self.categories = response.json()['categories']
+    self.categories = []
+
+    # page through all categories, 30 at a time
+    while url:
+      response = self.zendesk_session.get(url)
+      if response.status_code != 200:
+        print('FAILED to get category list with error {}'.format(response.status_code))
+        exit()
+    
+      categories = response.json()['categories']
+      for category in categories:
+        self.categories.append(category)
+      url = response.json()['next_page']
+    
     return self.categories
 
 
@@ -55,12 +64,21 @@ class ZendeskJsonPackager:
     else:
       print ("ZENDESK API: fetching sections")
 
-    url = '{}/sections.json'.format(self.zendesk_url) + '?page[size]=100'
-    response = self.zendesk_session.get(url)
-    if response.status_code != 200:
-      print('FAILED to get section list with error {}'.format(response.status_code))
-      exit()
-    self.sections = response.json()['sections']
+    url = '{}/sections.json'.format(self.zendesk_url)
+    self.sections = []
+
+    # page through all sections, 30 at a time
+    while url:
+      response = self.zendesk_session.get(url)
+      if response.status_code != 200:
+        print('FAILED to get section list with error {}'.format(response.status_code))
+        exit()
+    
+      sections = response.json()['sections']
+      for section in sections:
+        self.sections.append(section)
+      url = response.json()['next_page']
+    
     return self.sections
 
 
@@ -75,7 +93,6 @@ class ZendeskJsonPackager:
 
     url = '{}/articles.json'.format(self.zendesk_url)
     self.articles = []
-    self.articles_done_fetching = False
 
     # page through all articles, 30 at a time
     while url:
@@ -88,7 +105,6 @@ class ZendeskJsonPackager:
         self.articles.append(article)
       url = response.json()['next_page']
 
-    self.articles_done_fetching = True
     return self.articles
 
 
